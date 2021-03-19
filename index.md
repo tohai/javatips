@@ -12,7 +12,7 @@
 6. [Vấn đề về condition trong java](./part0/0.5Chapter.md)
 7. [Các vấn đề trong Collection](./part0/0.6Chapter.md)
 8. [code tối ưu hay code dễ hiểu](./part0/0.7Chapter.md)
-9. [Các khái niêm mutable và unmutable](./part0/0.8Chapter.md)
+9. [Các khái niêm Mutable và Immutable](./part0/0.8Chapter.md)
 10. [Bàn luận về comment](./part0/0.9Chapter.md)
 11. [Bàn luận về nên chọn công cụ nào để code](./part0/0.10Chapter.md)
 
