@@ -15,6 +15,7 @@
 9. [Các khái niêm Mutable và Immutable](./part0/0.8Chapter.md)
 10. [Bàn luận về comment](./part0/0.9Chapter.md)
 11. [Bàn luận về nên chọn công cụ nào để code](./part0/0.10Chapter.md)
+12. [Bàn luận về từ khóa final](./part0/0.11Chapter.md)
 
 ## Phần 1: JAVA Performance Tuning
 
