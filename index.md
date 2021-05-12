@@ -2,25 +2,26 @@
 
 [Tản mạn đôi điều trước khi bắt đầu](./part1/1.00chapter.md)
 
-## Phần 0: Các lưu ý về code hướng đối tượng
+## Phần mở đầu: Tản mạn mà một số chú ý trong java
 
-1. [Giới thiệu đôi điều trong phần 0](./part0/0.0Chapter.md)
+1. [Lưu ý khi đọc tài liệu này](./part0/0.0Chapter.md)
 2. [Các vấn đề dễ nhầm lẫn trong lập trình hướng đối tượng](./part0/0.1Chapter.md)
 3. [Vấn đề copy code](./part0/0.2Chapter.md)
 4. [Vấn đề null](./part0/0.3Chapter.md)
 5. [Vấn đề format code](./part0/0.4Chapter.md)
 6. [Vấn đề về condition trong java](./part0/0.5Chapter.md)
 7. [Các vấn đề trong Collection](./part0/0.6Chapter.md)
-8. [code tối ưu hay code dễ hiểu](./part0/0.7Chapter.md)
+8. [Code tối ưu hay code dễ hiểu](./part0/0.7Chapter.md)
 9. [Các khái niêm Mutable và Immutable](./part0/0.8Chapter.md)
 10. [Bàn luận về comment](./part0/0.9Chapter.md)
 11. [Bàn luận về nên chọn công cụ nào để code](./part0/0.10Chapter.md)
 12. [Bàn luận về từ khóa final](./part0/0.11Chapter.md)
+13. [Có nên tìm hiểu và nhưng kiến thức ngoài luồng?](./part0/0.12Chapter.md)
 
 ## Phần 1: JAVA Performance Tuning
 
 1. [Khởi tạo object](./part1/1.01chapter.md)
-2. [Bàn về string](./part1/1.02chapter.md)
+2. [Bàn về String](./part1/1.02chapter.md)
 3. [Exceptions(ngoại lệ), Assertions(bằng), Casts(ép kiêu), and Variables(giá trị)](./part1/1.03chapter.md)
 4. [Loops(vòng lặp), Switches(rẽ nhánh), and Recursion(đệ quy)](./part1/1.04chapter.md)
 5. [I/O, Logging, and Console Output](./part1/1.05chapter.md)
