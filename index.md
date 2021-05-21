@@ -17,6 +17,8 @@
 11. [Bàn luận về nên chọn công cụ nào để code](./part0/0.10Chapter.md)
 12. [Bàn luận về từ khóa final](./part0/0.11Chapter.md)
 13. [Có nên tìm hiểu và nhưng kiến thức ngoài luồng?](./part0/0.12Chapter.md)
+14. [Bàn luận về Exception](./part0/0.13Chapter.md)
+15. [Bàn luận về lớp lồng nhau - Nested Classes](./part0/0.14Chapter.md)
 
 ## Phần 1: JAVA Performance Tuning
 
