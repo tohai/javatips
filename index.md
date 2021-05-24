@@ -19,6 +19,7 @@
 13. [Có nên tìm hiểu và nhưng kiến thức ngoài luồng?](./part0/0.12Chapter.md)
 14. [Bàn luận về Exception](./part0/0.13Chapter.md)
 15. [Bàn luận về lớp lồng nhau - Nested Classes](./part0/0.14Chapter.md)
+16. [Bàn luận về Constant](./part0/0.15Chapter.md)
 
 ## Phần 1: JAVA Performance Tuning
 
