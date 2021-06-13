@@ -1,0 +1,24 @@
+# Tản mạn đôi điều trước khi bắt đầu
+
+4 tài liệu chính mà tôi sử dụng :
+
+1. **Clean code - Robert C. Martin** (**`Tài liệu kinh điển nhất định phai đọc`**)
+2. **Java Performance Tuning (2nd) - o'reilly - 2001**(**`tài liệu đã cũ`**)
+3. **Effective Java (3rd) - Joshua Bloch - 2018** (**`Tài liệu kinh điển javavà nó không dành cho người mới vào nghề`**)
+4. **Design Patterns: Elements of Reusable Object-Oriented Software - Gang of Four (GoF)** (**`Kinh thánh về Design Patterns`**)
+5. **Refactoring  Improving the Design of Existing Code -  Martin Fowler**  (**`Tài liệu kinh điển`**)
+6. **Agile Software Development, Principles, Patterns, and Practices - Robert C. Martin** (**`Ký sự phát triển theo ngyên tắc Agile`**)
+
+Lời đầu tiên:
+Nếu bạn là một lập trình viên hãy tự trả lời nhưng câu hỏi sau:
+
+1. Bạn có chịu trách nhiệm cho những gì bạn code?
+2. Bạn có bao giờ nghĩ nhưng gì bạn code có thể là gánh nặng cho nhưng người code sau bạn hay nói nặng lời thì bạn đã để lại Sh*t cho người đến sau?
+3. Bạn có biết thế nào là bad code (code bẩn, smell code - code bốc mùi)? Và hệ quả của nó?
+4. Trường phái của bạn là gì? bí kíp võ công mà bạn đang tu luyện là gì?
+5. Bạn có thực sự quan tâm đến quy trình phát triển hay không?
+6. Bạn biết thế nào là refactoring? tại sao chúng ta cần nó ? khi nào chúng ta nên refactoring? chi phí cho refactoring ai sẽ chịu?
+
+Nếu không trả lời được thì cũng đừng lo, vì các câu hỏi này sẽ đeo bám các bạn cho đến hết quá trình trở thành senior của bạn.
+
+Và tất nhiên răng khi bạn đọc xong và thấm nhuần hết toàn bộ tư tưởng tôi viết thì có lẽ bạn đã đủ yêu cầu để trở thành một thợ lành nghề nhưng điều này chưa đủ để trảo thành một senior thực.
