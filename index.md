@@ -21,6 +21,7 @@
 15. [Bàn luận về lớp lồng nhau - Nested Classes](./part1/15Chapter.md)
 16. [Bàn luận về Constant](./part1/16Chapter.md)
 17. [Bàn luận về data modeling](./part1/17Chapter.md)
+18. [Reflection](./part1/18Chapter.md)
 
 ## Phần 2: JAVA Performance Tuning
 

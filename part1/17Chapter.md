@@ -687,3 +687,168 @@ private Set transactionList = new HashSet<Transaction>();
 
 Ví dụ này khai báo một HashSet có thể chỉ có các thành viên kiểu `Transaction`. Vì tập hợp được khai báo trong ví dụ này là kiểu private, bạn có thể chắc chắn rằng không có giá trị bất hợp pháp nào bên trong nó. Tuy nhiên, cho đến khi các kiểu được tham số hóa khả dụng, bạn sẽ cần phải thực hiện một loạt các trình xác nhận một cách khó khăn.
 
+Lưu ý rằng bạn sẽ chỉ cần một Collection validator và Map validator. Tất cả các lớp Maps và collection đều triển khai hai giao diện này và bạn không cần bất kỳ tính năng đặc biệt nào của các lớp triển khai của chúng cho trình xác thực. Do đó, bạn chỉ có thể sử dụng hai trình xác thực.
+
+### 17.4.3 Sử dụng các ràng buộc
+
+Trong suốt mô hình dữ liệu, bạn sử dụng các ràng buộc để chỉ liên kết dữ liệu trong phạm vi được chấp nhận. Điều này cho phép bạn xây dựng các giao diện mà không phụ thuộc vào giá trị hardcoded. Các ràng buộc tương tác sẽ mở ra mô hình dữ liệu của bạn để nó có thể cung cấp nhiều thông tin hơn so với việc bạn đã mã hóa từng thuộc tính riêng lẻ. Ngoài ra, vì các ràng buộc có thể sử dụng lại, bạn có thể dễ dàng ràng buộc dữ liệu trong các ứng dụng khác.
+
+Lớp `Account` hiển thị cách một số loại ràng buộc được sử dụng. Đầu tiên, lớp thiết lập các ràng buộc của nó như các đối tượng cuối cùng:
+
+```java
+public abstract class Account extends MutableObject {
+
+    /** Constraint for the ID property. */
+    public static final NumericConstraint ID_CONSTRAINT = new NumericConstraint("ID", false, Integer.class,
+            new Integer(1000000), new Integer(Integer.MAX_VALUE));
+
+    /** Constraint for the customer property. */
+    public static final ObjectConstraint CUSTOMER_CONSTRAINT = new ObjectConstraint("customer", false, Customer.class);
+
+    /** Constraint for the balance property. */
+    public static final NumericConstraint BALANCE_CONSTRAINT = new NumericConstraint("balance", false, Float.class,
+            new Float(Float.MIN_VALUE), new Float(Float.MAX_VALUE));
+
+    /** Constraint for the transactionList property. */
+    public static final CollectionConstraint TRANSACTION_LIST_CONSTRAINT = new CollectionConstraint("transactionList",
+            false, Set.class, Transaction.class);
+}
+```
+
+Ở đây, một số ràng buộc được xác định cho các thuộc tính khác nhau của `Account`. Lưu ý rằng một tiêu chuẩn đặt tên chung đã được sử dụng để xác định các ràng buộc này; mỗi ràng buộc ở dạng chữ hoa với các từ được phân tách bằng dấu gạch dưới, theo sau là hậu tố `_CONSTRAINT`. (Điều này sẽ hữu ích sau này khi bạn cố gắng tìm kiếm các ràng buộc động.) Ngoài ra, việc xác định các ràng buộc là đối tượng cuối cùng trong lớp có nghĩa là nếu bạn phải thay đổi một phạm vi cho một thuộc tính cụ thể, bạn có thể thực hiện điều đó ở một nơi, và tất cả người dùng của ràng buộc sẽ được cập nhật tự động. Điều này sẽ giúp bạn tiết kiệm rất nhiều thời gian khi các yêu cầu của bạn thay đổi. Khi các ràng buộc được thiết lập, mỗi người thiết lập riêng lẻ sẽ sử dụng chúng:
+
+```java
+public abstract class Account extends MutableObject {
+
+    public void setBalance( final Float balance ) {
+        BALANCE_CONSTRAINT.validate(balance);
+        final Float oldBalance = this.balance;
+        this.balance = balance;
+        propertyChangeSupport.firePropertyChange("balance", oldBalance, this.balance);
+    }
+}
+```
+Vì ConstraintException là một kiểu con RuntimeException, bạn không cần phải khai báo nó trong mệnh đề `throws` của phương thức. Nếu phương thức validate() không thành công, ConstraintException thích hợp sẽ được ném ra, điều này sẽ khiến phương thức thoát ra mà không thay đổi bất kỳ thành viên nào của lớp.
+
+Sử dụng các ràng buộc trong GUI cũng là một vấn đề đơn giản. Ví dụ: bạn có thể sử dụng INTEREST_RATE_CONSTRAINT từ `LiabilityAccount` để xác thực dữ liệu trong GUI. Ví dụ dưới cho thấy một hộp thoại để nhập lãi suất cho các tài khoản nợ phải trả.
+
+```java
+public class InterestRateDialog extends JDialog implements ActionListener {
+
+    private JButton okBtn;
+    private JTextField interestRateField;
+
+    private InterestRateDialog() {
+        setModal(true);
+        final Container contentPane = getContentPane();
+        contentPane.setLayout(new GridLayout(3, 1));
+        JLabel interestRateLabel = new JLabel(
+                "Enter an Interest Rate (Between " + LiabilityAccount.INTEREST_RATE_CONSTRAINT.getMinValue() + " and "
+                        + LiabilityAccount.INTEREST_RATE_CONSTRAINT.getMaxValue() + ")");
+
+        contentPane.add(interestRateLabel);
+        interestRateField = new JTextField(15);
+        contentPane.add(interestRateField);
+        okBtn = new JButton("OK");
+        okBtn.addActionListener(this);
+
+        contentPane.add(okBtn);
+        pack();
+    }
+
+    public static final void main( final String[] args ) {
+        InterestRateDialog demo = new InterestRateDialog();
+        demo.show();
+        System.exit(0);
+    }
+
+    public void actionPerformed( final ActionEvent event ) {
+        Object src = event.getSource();
+        if (src == okBtn) {
+            float value = Float.parseFloat(interestRateField.getText());
+            try {
+                LiabilityAccount.INTEREST_RATE_CONSTRAINT.validate(new Float(value));
+                // do something with the value.
+                dispose();
+            } catch ( final ConstraintException ex ) {
+                Toolkit.getDefaultToolkit().beep();
+                interestRateField.requestFocus();
+                interestRateField.selectAll();
+            }
+        }
+    }
+}
+```
+
+Hộp thoại trong hàm tạo sẽ hỏi INTEREST_RATE_CONSTRAINT để tìm ra giá trị tối thiểu và giá trị lớn nhất là gì. Sau đó, nó nối các giá trị này với nhãn. Trong phương thức actionPerformed(), ràng buộc được sử dụng để kiểm tra giá trị đầu vào để xem liệu nó có phải là giá trị pháp lý cho lãi suất hay không. Nếu không, người dùng sẽ được nhắc nhập lãi suất hợp lệ.
+
+Bản chất có thể tái sử dụng của các ràng buộc giúp dễ dàng xây dựng GUI để kiểm tra các giá trị. Ngoài ra, bạn có thể sử dụng một ràng buộc trong trang JSP để chú thích một form. Có nhiều cách sử dụng ràng buộc có thể có. Khi bạn tìm hiểu về reflection trong Chương 18, bạn sẽ có thể khám phá những ràng buộc này một cách linh hoạt, điều này sẽ khiến chúng trở nên hữu ích hơn.
+
+### 17.4.4 Tạo các loại ràng buộc mới
+
+Trong gói mirror.datamodel.constraints, có rất nhiều ràng buộc có thể được sử dụng với bất kỳ mô hình dữ liệu nào bạn muốn viết. Mỗi lớp được xây dựng theo cách tương tự như lớp NumericConstraint. Bạn chỉ nên tạo một loại ràng buộc mới khi mã xác thực khác đáng kể so với các ràng buộc đi kèm với Mirror.
+
+Không sử dụng các ràng buộc để thay thế cho việc kiểm tra xây dựng thích hợp. Ví dụ: bạn có thể tạo một ràng buộc cho lớp java.awt.Color để xác nhận rằng các giá trị đỏ, lục và lam nằm trong khoảng từ 0 đến 256. Tuy nhiên, đây là logic không đúng chỗ; chính lớp `Color` sẽ thực hiện xác nhận khi xây dựng, không phải là một ràng buộc bên ngoài. Hơn nữa, nếu chỉ cho phép một tập hợp các màu riêng biệt, cách tốt nhất là tạo một lớp đối tượng không đổi thay vì một ràng buộc tùy chỉnh.
+
+Nói chung, bạn chỉ nên tạo các kiểu ràng buộc mới nếu bạn muốn sử dụng các kiểu dữ liệu mới trong mô hình có nhiều khả năng, nhưng chỉ một số ít trong số đó là hợp pháp trong ngữ cảnh của lớp của bạn. Về cơ bản, các ràng buộc kiểm tra tính hợp pháp dựa trên ngữ cảnh chứ không phải dựa trên loại và chỉ nên được tạo ra khi có các loại ngữ cảnh duy nhất.
+
+## 17.5 Persistence
+
+Bây giờ bạn đã có một mô hình dữ liệu gần như hoàn chỉnh, bạn có thể bắt đầu xem xét nơi lưu trữ nó. Mặc dù nhiều nhà phát triển tự động nghĩ đến JDBC khi ai đó nói "Persistence", nhưng đó không phải là cách duy nhất bạn có thể lưu trữ dữ liệu của mình. Trên thực tế, lưu trữ dữ liệu trong hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) có thể là lựa chọn sai lầm.
+
+### 17.5.1 RDBMS Vs OODBMS
+
+Mặc dù RDBMS là giải pháp lưu trữ dữ liệu phổ biến nhất được sử dụng trong lập trình Java, nhưng chúng thường là lựa chọn sai lầm. Nhiều hệ thống sẽ được hưởng lợi nhiều hơn từ hệ thống quản lý cơ sở dữ liệu hướng đối tượng (OODBMS). Để hiểu tại sao, điều quan trọng là bạn phải biết sự khác biệt giữa cơ sở dữ liệu quan hệ và cơ sở dữ liệu đối tượng.
+
+Cơ sở dữ liệu quan hệ tổ chức thông tin thành các bảng. Các bảng này có các cột cho mỗi phần dữ liệu và các hàng sắp xếp dữ liệu thành các bản ghi. Mỗi hàng là một bản ghi và mỗi cột là một phần của bản ghi đó. Kết nối giữa các bản ghi của các loại khác nhau được thực hiện bằng các quan hệ. Các cơ sở dữ liệu này có thể dễ dàng được thể hiện bằng một sơ đồ mối quan hệ thực thể như sơ đồ trong hình dưới.
+
+![entity relationship](./part1Img/entityrelationship.png)
+
+Trong trường hợp này, có hai bảng, một có năm cột và một có bốn. Các giao dịch mua của mỗi khách hàng được lưu trữ trong bảng `Purchase` và được liên kết với bảng `Customer` thông qua foreign key. Để tìm các giao dịch mua của khách hàng, hãy thực thi một câu lệnh SQL như sau:
+
+```sql
+SELECT PURCHASE_ID FROM Purchase 
+WHERE Purchase.CUSTOMER_ID = 80543
+```
+
+Những ai đã từng làm việc với cơ sở dữ liệu quan hệ đều đã quen thuộc với khái niệm này. Tuy nhiên, tuyên bố trên có một ý nghĩa sâu xa hơn mà nhiều nhà phát triển không cân nhắc.
+
+Trong ví dụ, câu lệnh select sẽ nhắc cơ sở dữ liệu xem qua bảng `Purchase`, kiểm tra từng bản ghi để tìm CUSTOMER_ID thích hợp. Số lượng mua càng nhiều, quá trình này sẽ mất nhiều thời gian hơn.
+
+Cơ sở dữ liệu đối tượng hoạt động khác nhau. Hãy xem xét biểu đồ UML trong Hình trên được hiển thị theo hướng đối tượng, như trong Hình dưới.
+
+![oriented manner](./part1Img/orientedmanner.png)
+
+Khách hàng mua là một đối tượng được tổng hợp lại thành đối tượng khách hàng. Nếu bạn kết xuất mã này sang Java, bạn sẽ sử dụng một danh sách để chứa các giao dịch mua của mỗi khách hàng. Khi đã có đối tượng khách hàng, bạn chỉ cần điều hướng đến các lượt mua hàng mong muốn.
+
+Đây chính xác là cách cơ sở dữ liệu đối tượng hoạt động. Họ lưu trữ toàn bộ đối tượng trong hệ thống của mình và điều hướng từ đối tượng này sang đối tượng khác bằng cách sử dụng một thiết bị gọi là con trỏ thông minh, thay thế tham chiếu tiêu chuẩn bằng tham chiếu có nhiều chức năng hơn. Với cơ sở dữ liệu đối tượng, các đối tượng mua riêng lẻ được lưu trữ trên đĩa. Trong danh sách chứa các giao dịch mua, cơ chế cơ sở dữ liệu lưu trữ các vị trí này bằng cách sử dụng các phương pháp độc quyền khác nhau, chẳng hạn như ID đối tượng (OID). Khi bạn điều hướng đến đối tượng, cơ chế duy trì sẽ tìm thấy OID và chuyển trực tiếp đến đối tượng.
+
+Cơ chế này nhanh hơn nhiều. Vì cơ sở dữ liệu không phải tìm kiếm danh sách các bản ghi cho một OID cụ thể, mà thay vào đó đi trực tiếp vào bản ghi trên đĩa, một bước tốn kém sẽ bị loại bỏ. Ngoài ra, khi điều hướng sâu, tình hình được cải thiện vì bạn chỉ cần chuyển từ nơi này sang nơi khác trên đĩa thay vì tìm kiếm qua hàng nghìn bản ghi. Cuối cùng, vì cơ sở dữ liệu đối tượng lưu trữ các đối tượng dưới dạng các đối tượng, nên không cần phải làm phẳng các đối tượng bản đồ có thể đa chiều. Thay vì làm phẳng cấu trúc phân cấp, bạn chỉ cần ra lệnh cho động cơ "lưu trữ cái này", và nó thực hiện.
+
+Cơ sở dữ liệu đối tượng cung cấp hiệu suất vượt trội trong việc điều hướng đối tượng; tuy nhiên, một cơ sở dữ liệu đối tượng không nhất thiết phải vượt trội trong mọi trường hợp. Vì các đối tượng được lưu trữ trong cơ sở dữ liệu đối tượng dưới dạng các đối tượng chứ không phải trong một bảng duy nhất, các tìm kiếm tham số với cơ sở dữ liệu đối tượng chậm hơn nhiều so với tìm kiếm với cơ sở dữ liệu quan hệ.
+
+Ví dụ: giả sử bạn cố gắng viết báo cáo về các giao dịch mua trong cửa hàng của mình. Nếu bạn muốn ghi lại mọi khách hàng đã mua thiết bị nướng thịt (SKU bắt đầu bằng BBQ) có giá trên $ 40, bạn sẽ cần tìm kiếm tham số. Trong trường hợp này, các thông số là "SKU bắt đầu bằng BBQ và giá> 40 đô la." Với cơ sở dữ liệu quan hệ, kết quả được tìm thấy bằng cách sử dụng câu lệnh SQL. Cơ sở dữ liệu đối tượng có một cái gì đó tương tự; tuy nhiên, cơ sở dữ liệu quan hệ sẽ luôn hoạt động nhanh hơn vì các bản ghi của nó đã được tối ưu hóa để thực hiện các tìm kiếm tham số. Mặt khác, cơ sở dữ liệu đối tượng phải xác định vị trí của từng khách hàng và sau đó điều hướng từng khách hàng đến việc mua hàng của họ, kiểm tra từng đối tượng theo các tiêu chí tìm kiếm.
+
+Vì vậy câu hỏi sử dụng cơ sở dữ liệu đối tượng hay cơ sở dữ liệu quan hệ phụ thuộc vào ứng dụng của bạn. Nếu bạn đang viết một ứng dụng trong đó phần lớn công việc sẽ là tìm kiếm tham số, thì cách tốt nhất của bạn là sử dụng cơ sở dữ liệu quan hệ. Mặt khác, nếu phần lớn công việc sẽ là điều hướng, thì cách tốt nhất của bạn là sử dụng cơ sở dữ liệu đối tượng.
+
+Nhưng có một vấn đề khác với cơ sở dữ liệu đối tượng: không có cơ sở dữ liệu đối tượng miễn phí (hoặc thậm chí rẻ tiền) — chúng không hề rẻ. Một số tốt nhất, chẳng hạn như Versant và ObjectStore, có thể đắt ngang với Oracle. Nếu bạn có đủ khả năng mua Oracle, bạn có thể đủ khả năng mua một cơ sở dữ liệu đối tượng, và tôi thực sự khuyến khích bạn nên kiểm tra một cơ sở dữ liệu. Nếu bạn đang xây dựng một ứng dụng web nhỏ cho công ty của mình và bạn không đủ tiền mua cơ sở dữ liệu đối tượng, bạn có thể gặp khó khăn so với cơ sở dữ liệu quan hệ.
+
+### 17.5.2 Các đối tượng dữ liệu Java cần giải cứu
+
+Mặc dù là một công nghệ tương đối mới, các đối tượng dữ liệu Java (JDO) dựa trên một số ý tưởng khá cũ, chẳng hạn như cung cấp một giải pháp duy nhất để làm cho đối tượng trở nên trong suốt. Nhóm Quản lý Dữ liệu Đối tượng (ODMG) đã cố gắng chuẩn hóa điều này, nhưng nó không bao giờ thực sự bắt kịp vì lý do này hay lý do khác. Tuy nhiên, với sự thất bại của CMP, vấn đề tồn tại trong suốt một lần nữa lại được đặt lên hàng đầu. Một nhóm chuyên gia từ Quy trình cộng đồng Java (JCP) đã xử lý vấn đề và kết quả là JDO
+
+JDO được thiết kế để duy trì bất kỳ đối tượng nào. Cho dù bạn muốn duy trì một đối tượng bạn đã xây dựng hay một đối tượng bạn đã mua từ một công ty khác, JDO cho phép bạn làm như vậy. Ngoài ra, JDO không cấu trúc lại đối tượng, như các kỹ thuật khác, chẳng hạn như CMP, yêu cầu. JDO chỉ đơn giản là nhìn vào đối tượng, xác định các trường của nó và lưu trữ chúng. Xem cuốn sách Đối tượng dữ liệu Java của David Jordan và Craig Russel (O'Reilly) để biết thêm thông tin về JDO.
+
+Về cơ bản, sử dụng JDO là một quy trình gồm ba bước. Đầu tiên, bạn viết hoặc thu nhận các đối tượng mà bạn muốn lưu trữ. Sau đó, bạn chạy chúng thông qua một quá trình được gọi là nâng cao. Cuối cùng, bạn sử dụng chúng.
+
+Bước đầu tiên tương đối đơn giản vì bạn có thể sử dụng JDO với hầu như bất kỳ đối tượng Java nào. Bước thứ hai để duy trì JDO là một quá trình được gọi là nâng cao, trong đó các phương thức được thêm vào tệp lớp đã biên dịch để nâng cao đối tượng. Điều này được thực hiện với một trình tăng cường JDO, nó sẽ xem xét tệp lớp, phân tích nó và sau đó thêm các phương thức khác nhau mà PersistenceManager, ông chủ của JDO, cần để quản lý đối tượng. Đối tượng kết quả sau đó đã sẵn sàng để được lưu giữ. Thông thường, việc nâng cao được thực hiện với một IDE chẳng hạn như Eclipse hoặc với Ant. Kodo JDO, chẳng hạn, cung cấp một số trình cắm thêm cho các IDE khác nhau.
+
+Sau khi các đối tượng được nâng cao, bạn có thể tiến hành một bước tùy chọn: xác định đối tượng. Có hai cách để xác định các đối tượng trong JDO. Bạn có thể để công cụ JDO xác định các ID riêng của nó, được gọi là danh tính kho dữ liệu hoặc bạn có thể xác định các lớp ID của riêng mình, được gọi là danh tính ứng dụng. Cho dù bạn sử dụng cách tiếp cận nào tùy thuộc vào ứng dụng của bạn và dữ liệu bạn đang cố gắng duy trì. Nếu bạn đang cố gắng duy trì các lớp mà ban đầu không được thiết kế để duy trì, bạn có thể sẽ phải sử dụng danh tính lưu trữ dữ liệu. Nếu bạn đã tự thiết kế các lớp mô hình dữ liệu, thì bạn có thể sẽ phải sử dụng danh tính ứng dụng. Dù bằng cách nào, nhà cung cấp JDO thường có các công cụ để giúp bạn. Với Kodo, chẳng hạn, có một công cụ sẽ tạo ra các lớp nhận dạng ứng dụng.
+
+Cuối cùng, các đối tượng đã sẵn sàng để sử dụng trong ứng dụng. Cái hay của JDO là các đối tượng được sử dụng như đối tượng, được lưu trữ dưới dạng đối tượng và được đọc dưới dạng đối tượng. Ngay cả ngôn ngữ truy vấn cho JDO, JDOQL, là hướng đối tượng. Tất cả các chi tiết ghi vào cơ sở dữ liệu, bộ nhớ đệm và đọc đều do PersistenceManager quản lý. Hơn nữa, người dùng có thể sử dụng cơ sở dữ liệu quan hệ hoặc đối tượng cho sự bền bỉ và giao diện sẽ giữ nguyên. Nếu bạn quyết định chuyển sang cơ sở dữ liệu đối tượng, bạn không cần phải viết lại mã.
+
+Ngoài ra, các nhà cung cấp JDO thường cung cấp các công cụ để hỗ trợ phát triển doanh nghiệp. Ví dụ: Kodo có bộ nhớ cache doanh nghiệp sẽ cho phép một số Enterprise JavaBeans (EJB) chia sẻ cùng một bộ nhớ cache. JDO có thể xử lý các vấn đề giao dịch và chi phí sử dụng các đối tượng dữ liệu. Sử dụng JDO sẽ làm cho cuộc sống của bạn dễ dàng hơn nhiều. Tôi sử dụng JDO làm cơ chế persistence trong tất cả các dự án của mình.
+
+## 17.6 Summary
+
+Dài quá ngại viết, nên các bạn tự đọc và tự đánh giá nhé.
