@@ -83,7 +83,7 @@ public static Integer sumInteger(List<Integer> ints) {
 }
 ```
 
-Cách vận dụng 2 hàm nyaf hãy cản thận với nó:
+Cách vận dụng 2 hàm này hãy cản thận với nó:
 
 ```java
 List<Integer> bigs = Arrays.asList(100,200,300);

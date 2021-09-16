@@ -1,0 +1,9 @@
+# Phần 4: OO Design Principle
+
+1. [SINGLE RESPONSIBILITY PRINCIPLE](./1Chapter.md)
+2. [THE OPEN CLOSED PRINCIPLE](./2Chapter.md)
+3. [LISKOV SUBSTITUTION PRINCIPLE](./3Chapter.md)
+4. [THE INTERFACE SERGREGATION PRINCIPLE](./4Chapter.md)
+5. [THE DEPENDENCY INVERSION PRINCIPLE](./5Chapter.md)
+6. [THE LAW OF DEMETER PRINCIPLE](./6Chapter.md)
+7. [Các nguyên tắc khác](./7Chapter.md)

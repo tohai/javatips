@@ -1,4 +1,4 @@
-# lại chào anh em pahts nhỉ :)
+# lại chào anh em phát nhỉ :)
 
 Nhóm này tôi sẽ viết về Java Generics (lập trình tổng quát trong java - tuy nhiên các ông có thể hiểu một cách nôm na là lập trình cho nhiều kiểu)
 

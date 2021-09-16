@@ -581,7 +581,7 @@ Bạn có thể lam được điều này trong java tuy nhiên nó là sự ngu
 
 Không nói nhiều hãy xem ảnh dưới để biết thêm thông tin:
 
-![Nested Class Rules](pat0Img/../part0Img/NestedClassRules.png)
+![Nested Class Rules](./part1Img/NestedClassRules.png)
 
 Mặc dù hầu hết các lớp lồng nhau trong chương này không được khuyến khích sử dụng thường xuyên, nhưng điều quan trọng là bạn phải hiểu động thái của chúng. Bạn có thể bắt gặp các loại lớp lồng nhau này và biết cách chúng hoạt động có thể giúp bạn tiết kiệm thời gian và sự thất vọng.
 
